@@ -36,10 +36,62 @@ public:
 		size++;
 		ContainerChanged->Invoke(this,nullptr);
 	}
-	void addOrSelect(int x, int y) {//проверяет, не принадлежат ли координаты уже существующей фигуре. Если нет - добавляет новую, иначе - закрашивает старую
-		
-		
+	void unclick() {
+		Node^ r = first;
+		while (r != nullptr) {
+			if (r->value->getIsClckd()) {
+				r->value->setIsClckd(false);
+				r->value->setIsSlctd(false);
+			}
+			r = r->nextNode;
+		}
+	}
+	void unselect() {
+		unclick();
+	}
+	void addOrSelect(int x, int y, bool cBoxMulty, bool fCtrl) {//проверяет, не принадлежат ли координаты уже существующей фигуре. Если нет - добавляет новую, иначе - закрашивает старую
+		Node^ c = first;
+		int counter = 0;
+		for (int i = 0; i < size; i++) {
+			if (c->value->isPointInObj(x, y)) {
+				counter++;
+				break;
+			}
+			c = c->nextNode;
+		}
+		if (counter == 0) {
+			Shape^ newShape = gcnew CCircle(x, y, true);
+			unselect();
+			push_back(newShape);
+		}
+		else {
+			c = first;
+			if (!fCtrl) unclick();
+			for (int i = 0; i < size; i++) {
+				if (c->value->isPointInObj(x, y) && !(c->value->getIsSlctd())) {
+					c->value->setIsSlctd(true);
+					c->value->setIsClckd(true);
+					if (!(cBoxMulty)) break;
+				}
+				c = c->nextNode;
+			}
+		}
 		ContainerChanged->Invoke(this, nullptr);
+	}
+	void delSlctd() {
+		Node^ r = first;
+		while (r != nullptr) {
+			Node^ nxt = r->nextNode;
+			if (r->value->getIsSlctd()) del(r->value);
+			r = nxt;
+		}
+	}
+	void DrawAll(System::Drawing::Graphics^ g) {
+		Node^ r = first;
+		while (r != nullptr) {
+			(r->value)->Draw(g);
+			r = r->nextNode;
+		}
 	}
 
 	void del(Shape^ c) {
