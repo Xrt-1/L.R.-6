@@ -17,12 +17,14 @@ private:
 	Node^ current;
 	Node^ last;
 	int size;
+	System::Drawing::Brush^ LastBrush = gcnew System::Drawing::SolidBrush(System::Drawing::Color::BlueViolet);
 public:
 	System::EventHandler^ ContainerChanged;
 	ShapeContainer() {
 		last = current = first = nullptr;
 		size = 0;
 	}
+	
 	void push_back(Shape^ cr) {
 		Node^ newNode = gcnew Node(cr,nullptr);
 		if (first == nullptr) {
@@ -34,6 +36,7 @@ public:
 		}
 		last = newNode;
 		size++;
+		cr->setColorSlctd(LastBrush);
 		ContainerChanged->Invoke(this,nullptr);
 	}
 	void unclick() {
@@ -130,4 +133,22 @@ public:
 		ContainerChanged->Invoke(this, nullptr);
 	}
 
+	void setSlctdColor(System::Drawing::Color color) {
+		LastBrush = gcnew System::Drawing::SolidBrush(color);
+		Node^ r = first;
+		while (r != nullptr) {
+			r->value->setColorSlctd(LastBrush);
+			r = r->nextNode;
+		}
+		ContainerChanged->Invoke(this, nullptr);
+	}
+
+	void MoveSlctd(System::String^ side) {
+		Node^ r = first;
+		while (r != nullptr) {
+			if (r->value->getIsSlctd()) r->value->Move(side);
+			r = r->nextNode;
+		}
+		ContainerChanged->Invoke(this, nullptr);
+	}
 };

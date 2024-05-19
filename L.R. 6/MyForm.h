@@ -48,6 +48,14 @@ namespace LR6 {
 	protected:
 	private: System::Windows::Forms::CheckBox^ cBoxMulty;
 	private: Graphics^ g;
+	private: System::Windows::Forms::ComboBox^ cBoxShapes;
+	private: System::Windows::Forms::ColorDialog^ clrDialog;
+
+	private: System::Windows::Forms::Button^ btnColor;
+
+
+
+
 	private:
 		/// <summary>
 		/// Обязательная переменная конструктора.
@@ -64,6 +72,9 @@ namespace LR6 {
 			this->pBox = (gcnew System::Windows::Forms::PictureBox());
 			this->cBoxCtrl = (gcnew System::Windows::Forms::CheckBox());
 			this->cBoxMulty = (gcnew System::Windows::Forms::CheckBox());
+			this->cBoxShapes = (gcnew System::Windows::Forms::ComboBox());
+			this->clrDialog = (gcnew System::Windows::Forms::ColorDialog());
+			this->btnColor = (gcnew System::Windows::Forms::Button());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pBox))->BeginInit();
 			this->SuspendLayout();
 			// 
@@ -71,7 +82,7 @@ namespace LR6 {
 			// 
 			this->pBox->Location = System::Drawing::Point(-2, -1);
 			this->pBox->Name = L"pBox";
-			this->pBox->Size = System::Drawing::Size(672, 370);
+			this->pBox->Size = System::Drawing::Size(908, 372);
 			this->pBox->TabIndex = 0;
 			this->pBox->TabStop = false;
 			this->pBox->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &MyForm::pBox_MouseClick);
@@ -79,7 +90,7 @@ namespace LR6 {
 			// cBoxCtrl
 			// 
 			this->cBoxCtrl->AutoSize = true;
-			this->cBoxCtrl->Location = System::Drawing::Point(677, 307);
+			this->cBoxCtrl->Location = System::Drawing::Point(682, 339);
 			this->cBoxCtrl->Name = L"cBoxCtrl";
 			this->cBoxCtrl->Size = System::Drawing::Size(107, 20);
 			this->cBoxCtrl->TabIndex = 1;
@@ -90,18 +101,40 @@ namespace LR6 {
 			// cBoxMulty
 			// 
 			this->cBoxMulty->AutoSize = true;
-			this->cBoxMulty->Location = System::Drawing::Point(677, 334);
+			this->cBoxMulty->Location = System::Drawing::Point(795, 339);
 			this->cBoxMulty->Name = L"cBoxMulty";
 			this->cBoxMulty->Size = System::Drawing::Size(98, 20);
 			this->cBoxMulty->TabIndex = 2;
 			this->cBoxMulty->Text = L"multySelect";
 			this->cBoxMulty->UseVisualStyleBackColor = true;
 			// 
+			// cBoxShapes
+			// 
+			this->cBoxShapes->FormattingEnabled = true;
+			this->cBoxShapes->Items->AddRange(gcnew cli::array< System::Object^  >(4) { L"Circle", L"Triangle", L"Square", L"Section" });
+			this->cBoxShapes->Location = System::Drawing::Point(810, 55);
+			this->cBoxShapes->Name = L"cBoxShapes";
+			this->cBoxShapes->Size = System::Drawing::Size(83, 24);
+			this->cBoxShapes->TabIndex = 3;
+			this->cBoxShapes->Text = L"Circle";
+			// 
+			// btnColor
+			// 
+			this->btnColor->Location = System::Drawing::Point(730, 12);
+			this->btnColor->Name = L"btnColor";
+			this->btnColor->Size = System::Drawing::Size(163, 28);
+			this->btnColor->TabIndex = 4;
+			this->btnColor->Text = L"Выбрать цвет фигур";
+			this->btnColor->UseVisualStyleBackColor = true;
+			this->btnColor->Click += gcnew System::EventHandler(this, &MyForm::btnColor_Click);
+			// 
 			// MyForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(800, 371);
+			this->ClientSize = System::Drawing::Size(905, 371);
+			this->Controls->Add(this->btnColor);
+			this->Controls->Add(this->cBoxShapes);
 			this->Controls->Add(this->cBoxMulty);
 			this->Controls->Add(this->cBoxCtrl);
 			this->Controls->Add(this->pBox);
@@ -138,6 +171,12 @@ private: System::Void pBox_MouseClick(System::Object^ sender, System::Windows::F
 }
 private: System::Void cBoxCtrl_CheckedChanged(System::Object^ sender, System::EventArgs^ e) {
 	if (!(cBoxCtrl->Checked)) fCtrl = 0;
+}
+private: System::Void btnColor_Click(System::Object^ sender, System::EventArgs^ e) {
+	clrDialog->ShowDialog();
+	if (clrDialog->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
+		cont->setSlctdColor(clrDialog->Color);
+	}
 }
 };
 }
