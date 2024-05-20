@@ -25,7 +25,6 @@ namespace LR6 {
 		}
 	private: System::Void Container_update(System::Object^ sender, System::EventArgs^ e) {
 		this->Refresh();
-		this->Invalidate();
 		cont->DrawAll(g);
 	}
 	protected:
@@ -141,6 +140,7 @@ namespace LR6 {
 			this->KeyPreview = true;
 			this->Name = L"MyForm";
 			this->Text = L"MyForm";
+			this->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MyForm::MyForm_Paint);
 			this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MyForm::MyForm_KeyDown);
 			this->KeyUp += gcnew System::Windows::Forms::KeyEventHandler(this, &MyForm::MyForm_KeyUp);
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pBox))->EndInit();
@@ -177,6 +177,9 @@ private: System::Void btnColor_Click(System::Object^ sender, System::EventArgs^ 
 	if (clrDialog->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
 		cont->setSlctdColor(clrDialog->Color);
 	}
+}
+private: System::Void MyForm_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e) {
+
 }
 };
 }

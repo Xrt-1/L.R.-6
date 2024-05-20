@@ -8,7 +8,7 @@ ref class Shape {
 protected:
 	int x, y;
 	System::Drawing::Brush^ ColorSlctd;
-	bool isSelected, isClicked;
+	bool isSelected;
 	virtual void DrawSlctd(System::Drawing::Graphics^ g) = 0;
 	virtual void DrawUnSlctd(System::Drawing::Graphics^ g) = 0;
 public:
@@ -27,12 +27,7 @@ public:
 	void setIsSlctd(bool slctd) {
 		isSelected = slctd;
 	}
-	void setIsClckd(bool clckd) {
-		isClicked = clckd;
-	}
-	bool getIsClckd() {
-		return isClicked;
-	}
+	virtual bool isA(System::String^ name) = 0;
 };
 
 ref class CCircle :public Shape {
@@ -51,7 +46,6 @@ public:
 		x = _x - r;
 		y = _y - r;
 		isSelected = true;
-		isClicked = false;
 	}
 	CCircle(int x, int y, bool slctd) : CCircle(x, y) {
 		isSelected = slctd;
@@ -63,6 +57,9 @@ public:
 	void Draw(System::Drawing::Graphics^ g) override {
 		if (this->isSelected) DrawSlctd(g);
 		else DrawUnSlctd(g);
+	}
+	bool isA(System::String^ name) override {
+		return (name == "Circle"); 
 	}
 };
 
@@ -83,9 +80,7 @@ public:
 		x = _x - a / 2;
 		y = _y - a / 2;
 		isSelected = true;
-		isClicked = false;
 	}
-	Square(int x,int y, bool slctd) : Square(x,y) { isSelected = slctd; }
 	bool isPointInObj(int x1, int y1) override {
 		return (x1 - (x + a/2))* (x1 - (x+a/2)) + (y1 - (y+a/2)) * (y1 - (y+a/2)) <= a / 2;
 	}
@@ -93,9 +88,12 @@ public:
 		if (this->isSelected) DrawSelected(g);
 		else DrawUnSlctd(g);
 	}
+	bool isA(System::String^ name) override {
+		return (name == "Square");
+	}
 
 };
-ref class Triange : public Shape {
+ref class Triangle : public Shape {
 protected:
 	int size = 10;
 	Point^ A = gcnew Point(-1, 0);

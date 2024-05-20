@@ -39,20 +39,17 @@ public:
 		cr->setColorSlctd(LastBrush);
 		ContainerChanged->Invoke(this,nullptr);
 	}
-	void unclick() {
+	void unselect() {
 		Node^ r = first;
 		while (r != nullptr) {
-			if (r->value->getIsClckd()) {
-				r->value->setIsClckd(false);
+			if (r->value->getIsSlctd()) {
 				r->value->setIsSlctd(false);
 			}
 			r = r->nextNode;
 		}
 	}
-	void unselect() {
-		unclick();
-	}
-	void addOrSelect(int x, int y, bool cBoxMulty, bool fCtrl) {//проверяет, не принадлежат ли координаты уже существующей фигуре. Если нет - добавляет новую, иначе - закрашивает старую
+	
+	void addOrSelect(int x, int y, bool cBoxMulty, bool fCtrl, System::String^ type) {//проверяет, не принадлежат ли координаты уже существующей фигуре. Если нет - добавляет новую, иначе - закрашивает старую
 		Node^ c = first;
 		int counter = 0;
 		for (int i = 0; i < size; i++) {
@@ -63,17 +60,19 @@ public:
 			c = c->nextNode;
 		}
 		if (counter == 0) {
-			Shape^ newShape = gcnew CCircle(x, y, true);
+			Shape^ newShape;
+			if (type == "Circle") newShape = gcnew CCircle(x, y, true);
+			else if (type == "Triangle") newShape = gcnew Triangle();
+			else if (type == "Square") newShape = gcnew Square()
 			unselect();
 			push_back(newShape);
 		}
 		else {
 			c = first;
-			if (!fCtrl) unclick();
+			if (!fCtrl) unselect();
 			for (int i = 0; i < size; i++) {
 				if (c->value->isPointInObj(x, y) && !(c->value->getIsSlctd())) {
 					c->value->setIsSlctd(true);
-					c->value->setIsClckd(true);
 					if (!(cBoxMulty)) break;
 				}
 				c = c->nextNode;
@@ -88,6 +87,8 @@ public:
 			if (r->value->getIsSlctd()) del(r->value);
 			r = nxt;
 		}
+		if (last != nullptr) last->value->setIsSlctd(true);
+		ContainerChanged->Invoke(this, nullptr);
 	}
 	void DrawAll(System::Drawing::Graphics^ g) {
 		Node^ r = first;
@@ -100,11 +101,10 @@ public:
 	void del(Shape^ c) {
 		if (c == nullptr || first == nullptr) return;
 		Node^ r = first;
-		Node^ p = nullptr; // Узел-предшественник удаляемого узла
+		Node^ p = nullptr; 
 		while (r != nullptr) {
 			if (r->value == c) {
 				if (p == nullptr) {
-					// Если удаляемый узел - первый в списке
 					if (current == first) current = first->nextNode;
 					if (last == first) last = nullptr;
 					Node^ nxt = first->nextNode;
@@ -115,7 +115,6 @@ public:
 
 				}
 				else {
-					// Удаляемый узел не первый в списке
 					if (current == r) current = current->nextNode;
 					if (last == r) {
 						last = p;
