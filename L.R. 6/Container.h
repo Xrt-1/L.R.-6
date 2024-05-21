@@ -27,13 +27,19 @@ public:
 				if (c != nullptr) c->setR();
 				else if (t != nullptr) t->setXY();
 				else if (s != nullptr) s->setA();
-				return false;
+				return true;
 			}
 		}
 		for (int i = 0; i < Borders.Height; i++) {
 			if (obj->isPointInObj(Borders.Width, i) || obj->isPointInObj(Location.X, i)) {
 				obj->setXY();
-				return false;
+				t = dynamic_cast<Triangle^> (obj);
+				c = dynamic_cast<CCircle^> (obj);
+				s = dynamic_cast<Square^> (obj);
+				if (c != nullptr) c->setR();
+				else if (t != nullptr) t->setCoords();
+				else if (s != nullptr) s->setA();
+				return true;
 			}
 		}
 		return false;
@@ -56,15 +62,11 @@ private:
 	Node^ last;
 	int size;
 	System::Drawing::Brush^ LastBrush = gcnew System::Drawing::SolidBrush(System::Drawing::Color::BlueViolet);
-	System::Drawing::Size pBoxBorders;
-	System::Drawing::Point pBoxLocation;
+	BordersChecker^ bChecker;
 	
 public:
-	void setpBoxBorders(System::Drawing::Size Size) {
-		pBoxBorders = Size;
-	}
-	void setpBoxLocation(System::Drawing::Point Location) {
-		pBoxLocation = Location;
+	void Initialize_BChecker(System::Drawing::Size size, System::Drawing::Point Location) {
+		bChecker = gcnew BordersChecker(size, Location);
 	}
 	System::EventHandler^ ContainerChanged;
 	ShapeContainer() {
@@ -192,19 +194,21 @@ public:
 	void MoveSlctd(System::String^ side, bool Borders) {
 		Node^ r = first;
 		while (r != nullptr) {
-			if (r->value->getIsSlctd())
-				if (!Borders) r->value->Move(side);
-				else r->value->Move(side, pBoxBorders, pBoxLocation);
+			if (r->value->getIsSlctd()) {
+				r->value->Move(side);
+				if (Borders) (bChecker->BordersCheck(r->value));
+			}
 			r = r->nextNode;
 		}
 		ContainerChanged->Invoke(this, nullptr);
 	}
+
 	void sizeChange(System::String^ operation, bool Borders) {
 		Node^ r = first;
 		while (r != nullptr) {
 			if (r->value->getIsSlctd()) {
-				if (!Borders) r->value->sizeChange(operation);
-				else r -> value->sizeChange(operation,pBoxBorders, pBoxLocation);
+				r->value->sizeChange(operation);
+				if (Borders) (bChecker->BordersCheck(r->value));
 			}
 			r = r->nextNode;
 		}

@@ -27,8 +27,7 @@ namespace LR6 {
 			int height = (pBox->Size).Height;
 			int x = (pBox->Location).X;
 			int y = (pBox->Location).Y;
-			cont->setpBoxBorders(System::Drawing::Size(width + x, height + y));
-			cont->setpBoxLocation(pBox->Location);
+			cont->Initialize_BChecker(System::Drawing::Size(width + x, height + y), pBox->Location);
 		}
 	private: System::Void Container_update(System::Object^ sender, System::EventArgs^ e) {
 		this->Refresh();
@@ -135,7 +134,7 @@ namespace LR6 {
 			this->btnColor->Name = L"btnColor";
 			this->btnColor->Size = System::Drawing::Size(163, 28);
 			this->btnColor->TabIndex = 4;
-			this->btnColor->Text = L"Выбрать цвет фигур";
+			this->btnColor->Text = L"Select color";
 			this->btnColor->UseVisualStyleBackColor = true;
 			this->btnColor->Click += gcnew System::EventHandler(this, &MyForm::btnColor_Click);
 			// 
@@ -162,7 +161,7 @@ namespace LR6 {
 			this->Controls->Add(this->pBox);
 			this->KeyPreview = true;
 			this->Name = L"MyForm";
-			this->Text = L"MyForm";
+			this->Text = L"L.R. 6";
 			this->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MyForm::MyForm_Paint);
 			this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MyForm::MyForm_KeyDown);
 			this->KeyUp += gcnew System::Windows::Forms::KeyEventHandler(this, &MyForm::MyForm_KeyUp);

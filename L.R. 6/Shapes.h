@@ -21,31 +21,11 @@ public:
 		y = pY;
 	}
 
-	virtual void sizeChange(System::String^ operation, System::Drawing::Size Borders, System::Drawing::Point Location) {
-		sizeChange(operation);
-		BordersChecker(Borders, Location);
-	}
-
 	void Draw(System::Drawing::Graphics^ g) {
 		if (this->isSelected) DrawSlctd(g);
 		else DrawUnSlctd(g);
 	}
-	virtual void BordersChecker(System::Drawing::Size Borders, System::Drawing::Point Location) {
-		for (int i = 0; i < Borders.Width; i++) {
-			if (isPointInObj(i, Borders.Height) || isPointInObj(i, Location.Y)) {
-				x = pX;
-				y = pY;
-				return;
-			}
-		}
-		for (int i = 0; i < Borders.Height; i++) {
-			if (isPointInObj(Borders.Width, i) || isPointInObj(Location.X, i)) {
-				x = pX;
-				y = pY;
-				return;
-			}
-		}
-	};
+
 	virtual void Move(System::String^ side) {
 		pX  = x, pY = y;
 		if (side == "right") x+=5;
@@ -53,10 +33,7 @@ public:
 		else if (side == "up") y-=5;
 		else if (side == "down") y+=5;
 	}
-	virtual void Move(System::String^ side, System::Drawing::Size Borders, System::Drawing::Point Location) {
-		Move(side);
-		BordersChecker(Borders, Location);
-	}
+
 	
 	void setColorSlctd(System::Drawing::Brush^ color) { ColorSlctd = color; }
 	void setIsSlctd(bool slctd) {
@@ -76,8 +53,8 @@ protected:
 public:
 	CCircle(int _x, int _y) {
 		pR = r = 20;
-		x = _x - r;
-		y = _y - r;
+		pX = x = _x - r;
+		pY = y = _y - r;
 		isSelected = true;
 	}
 	CCircle(int x, int y, bool slctd) : CCircle(x, y) {
@@ -95,24 +72,6 @@ public:
 	void setR() {
 		r = pR;
 	}
-	void BordersChecker(System::Drawing::Size Borders, System::Drawing::Point Location) override {
-		for (int i = 0; i < Borders.Width; i++) {
-			if (isPointInObj(i, Borders.Height) || isPointInObj(i, Location.Y)) {
-				x = pX;
-				y = pY;
-				r = pR;
-				return;
-			}
-		}
-		for (int i = 0; i < Borders.Height; i++) {
-			if (isPointInObj(Borders.Width, i) || isPointInObj(Location.X, i)) {
-				x = pX;
-				y = pY;
-				r = pR;
-				return;
-			}
-		}
-	}
 };
 
 ref class Square : public Shape {
@@ -127,8 +86,8 @@ protected:
 public:
 	Square(int _x,int _y){
 		pA = a = 30;
-		x = _x - a / 2;
-		y = _y - a / 2;
+		pX = x = _x - a / 2;
+		pY = y = _y - a / 2;
 		isSelected = true;
 	}
 	void setA() {
@@ -141,24 +100,6 @@ public:
 		pA = a;
 		if (operation == "+") a += 3;
 		else if (operation == "-") if (a!= 0) a -= 3;
-	}
-	void BordersChecker(System::Drawing::Size Borders, System::Drawing::Point Location) override {
-		for (int i = 0; i < Borders.Width; i++) {
-			if (isPointInObj(i, Borders.Height) || isPointInObj(i, Location.Y)) {
-				x = pX;
-				y = pY;
-				a = pA;
-				return;
-			}
-		}
-		for (int i = 0; i < Borders.Height; i++) {
-			if (isPointInObj(Borders.Width, i) || isPointInObj(Location.X, i)) {
-				x = pX;
-				y = pY;
-				a = pA;
-				return;
-			}
-		}
 	}
 };
 ref class Triangle : public Shape {
@@ -191,8 +132,8 @@ public:
 		C = pC;
 	}
 	Triangle(int _x, int _y) {
-		x = _x;
-		y = _y;
+		pX = x = _x;
+		pY = y = _y;
 		isSelected = true;
 		Initialize();
 	}
