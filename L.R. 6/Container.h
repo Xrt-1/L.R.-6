@@ -2,6 +2,44 @@
 #include"Shapes.h"
 #include "MyForm.h"
 
+ref class BordersChecker {
+private:
+	System::Drawing::Size Borders;
+	System::Drawing::Point Location;
+public:
+	BordersChecker(System::Drawing::Size Borders, System::Drawing::Point Location) {
+		setParams(Borders, Location);
+	}
+	void setParams(System::Drawing::Size Borders, System::Drawing::Point Location) {
+		this->Borders = Borders;
+		this->Location = Location;
+	}
+	bool BordersCheck(Shape^ obj) {
+		Triangle^ t;
+		CCircle^ c;
+		Square^ s;
+		for (int i = 0; i < Borders.Width; i++) {
+			if (obj->isPointInObj(i, Borders.Height) || obj->isPointInObj(i, Location.Y)) {
+				obj->setXY();
+				t = dynamic_cast<Triangle^> (obj);
+				c = dynamic_cast<CCircle^> (obj);
+				s = dynamic_cast<Square^> (obj);
+				if (c != nullptr) c->setR();
+				else if (t != nullptr) t->setXY();
+				else if (s != nullptr) s->setA();
+				return false;
+			}
+		}
+		for (int i = 0; i < Borders.Height; i++) {
+			if (obj->isPointInObj(Borders.Width, i) || obj->isPointInObj(Location.X, i)) {
+				obj->setXY();
+				return false;
+			}
+		}
+		return false;
+	}
+};
+
 ref class ShapeContainer {
 private:
 	ref class Node {
@@ -18,7 +56,16 @@ private:
 	Node^ last;
 	int size;
 	System::Drawing::Brush^ LastBrush = gcnew System::Drawing::SolidBrush(System::Drawing::Color::BlueViolet);
+	System::Drawing::Size pBoxBorders;
+	System::Drawing::Point pBoxLocation;
+	
 public:
+	void setpBoxBorders(System::Drawing::Size Size) {
+		pBoxBorders = Size;
+	}
+	void setpBoxLocation(System::Drawing::Point Location) {
+		pBoxLocation = Location;
+	}
 	System::EventHandler^ ContainerChanged;
 	ShapeContainer() {
 		last = current = first = nullptr;
@@ -62,8 +109,8 @@ public:
 		if (counter == 0) {
 			Shape^ newShape;
 			if (type == "Circle") newShape = gcnew CCircle(x, y, true);
-			else if (type == "Triangle") newShape = gcnew Triangle();
-			else if (type == "Square") newShape = gcnew Square()
+			else if (type == "Triangle") newShape = gcnew Triangle(x,y);
+			else if (type == "Square") newShape = gcnew Square(x, y);
 			unselect();
 			push_back(newShape);
 		}
@@ -142,10 +189,23 @@ public:
 		ContainerChanged->Invoke(this, nullptr);
 	}
 
-	void MoveSlctd(System::String^ side) {
+	void MoveSlctd(System::String^ side, bool Borders) {
 		Node^ r = first;
 		while (r != nullptr) {
-			if (r->value->getIsSlctd()) r->value->Move(side);
+			if (r->value->getIsSlctd())
+				if (!Borders) r->value->Move(side);
+				else r->value->Move(side, pBoxBorders, pBoxLocation);
+			r = r->nextNode;
+		}
+		ContainerChanged->Invoke(this, nullptr);
+	}
+	void sizeChange(System::String^ operation, bool Borders) {
+		Node^ r = first;
+		while (r != nullptr) {
+			if (r->value->getIsSlctd()) {
+				if (!Borders) r->value->sizeChange(operation);
+				else r -> value->sizeChange(operation,pBoxBorders, pBoxLocation);
+			}
 			r = r->nextNode;
 		}
 		ContainerChanged->Invoke(this, nullptr);

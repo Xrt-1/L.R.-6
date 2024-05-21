@@ -22,11 +22,21 @@ namespace LR6 {
 			cont->ContainerChanged += gcnew System::EventHandler(this, &MyForm::Container_update);
 			g = this->pBox->CreateGraphics();
 			this->Container_update(this, nullptr);
+
+			int width = (pBox->Size).Width;
+			int height = (pBox->Size).Height;
+			int x = (pBox->Location).X;
+			int y = (pBox->Location).Y;
+			cont->setpBoxBorders(System::Drawing::Size(width + x, height + y));
+			cont->setpBoxLocation(pBox->Location);
 		}
 	private: System::Void Container_update(System::Object^ sender, System::EventArgs^ e) {
 		this->Refresh();
 		cont->DrawAll(g);
 	}
+	private: System::Windows::Forms::CheckBox^ checkBoxBorders;
+
+	private: System::String^ type = "Circle";
 	protected:
 		/// <summary>
 		/// Освободить все используемые ресурсы.
@@ -74,14 +84,15 @@ namespace LR6 {
 			this->cBoxShapes = (gcnew System::Windows::Forms::ComboBox());
 			this->clrDialog = (gcnew System::Windows::Forms::ColorDialog());
 			this->btnColor = (gcnew System::Windows::Forms::Button());
+			this->checkBoxBorders = (gcnew System::Windows::Forms::CheckBox());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pBox))->BeginInit();
 			this->SuspendLayout();
 			// 
 			// pBox
 			// 
-			this->pBox->Location = System::Drawing::Point(-2, -1);
+			this->pBox->Location = System::Drawing::Point(-1, -3);
 			this->pBox->Name = L"pBox";
-			this->pBox->Size = System::Drawing::Size(908, 372);
+			this->pBox->Size = System::Drawing::Size(911, 376);
 			this->pBox->TabIndex = 0;
 			this->pBox->TabStop = false;
 			this->pBox->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &MyForm::pBox_MouseClick);
@@ -89,7 +100,7 @@ namespace LR6 {
 			// cBoxCtrl
 			// 
 			this->cBoxCtrl->AutoSize = true;
-			this->cBoxCtrl->Location = System::Drawing::Point(682, 339);
+			this->cBoxCtrl->Location = System::Drawing::Point(790, 339);
 			this->cBoxCtrl->Name = L"cBoxCtrl";
 			this->cBoxCtrl->Size = System::Drawing::Size(107, 20);
 			this->cBoxCtrl->TabIndex = 1;
@@ -100,7 +111,7 @@ namespace LR6 {
 			// cBoxMulty
 			// 
 			this->cBoxMulty->AutoSize = true;
-			this->cBoxMulty->Location = System::Drawing::Point(795, 339);
+			this->cBoxMulty->Location = System::Drawing::Point(790, 287);
 			this->cBoxMulty->Name = L"cBoxMulty";
 			this->cBoxMulty->Size = System::Drawing::Size(98, 20);
 			this->cBoxMulty->TabIndex = 2;
@@ -109,13 +120,14 @@ namespace LR6 {
 			// 
 			// cBoxShapes
 			// 
+			this->cBoxShapes->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
 			this->cBoxShapes->FormattingEnabled = true;
-			this->cBoxShapes->Items->AddRange(gcnew cli::array< System::Object^  >(4) { L"Circle", L"Triangle", L"Square", L"Section" });
+			this->cBoxShapes->Items->AddRange(gcnew cli::array< System::Object^  >(3) { L"Circle", L"Triangle", L"Square" });
 			this->cBoxShapes->Location = System::Drawing::Point(810, 55);
 			this->cBoxShapes->Name = L"cBoxShapes";
 			this->cBoxShapes->Size = System::Drawing::Size(83, 24);
 			this->cBoxShapes->TabIndex = 3;
-			this->cBoxShapes->Text = L"Circle";
+			this->cBoxShapes->SelectedIndexChanged += gcnew System::EventHandler(this, &MyForm::cBoxShapes_SelectedIndexChanged);
 			// 
 			// btnColor
 			// 
@@ -127,11 +139,22 @@ namespace LR6 {
 			this->btnColor->UseVisualStyleBackColor = true;
 			this->btnColor->Click += gcnew System::EventHandler(this, &MyForm::btnColor_Click);
 			// 
+			// checkBoxBorders
+			// 
+			this->checkBoxBorders->AutoSize = true;
+			this->checkBoxBorders->Location = System::Drawing::Point(790, 313);
+			this->checkBoxBorders->Name = L"checkBoxBorders";
+			this->checkBoxBorders->Size = System::Drawing::Size(85, 20);
+			this->checkBoxBorders->TabIndex = 5;
+			this->checkBoxBorders->Text = L"Границы";
+			this->checkBoxBorders->UseVisualStyleBackColor = true;
+			// 
 			// MyForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(905, 371);
+			this->ClientSize = System::Drawing::Size(903, 371);
+			this->Controls->Add(this->checkBoxBorders);
 			this->Controls->Add(this->btnColor);
 			this->Controls->Add(this->cBoxShapes);
 			this->Controls->Add(this->cBoxMulty);
@@ -158,6 +181,12 @@ namespace LR6 {
 		else if (e->KeyCode == Keys::Delete) {
 			cont->delSlctd();
 		}
+		else if (e->KeyCode == Keys::Add) cont->sizeChange("+", checkBoxBorders->Checked);
+		else if (e->KeyCode == Keys::Subtract) cont->sizeChange("-", checkBoxBorders->Checked);
+		else if (e->KeyCode == Keys::Up) cont->MoveSlctd("up", checkBoxBorders->Checked);
+		else if (e->KeyCode == Keys::Down) cont->MoveSlctd("down", checkBoxBorders->Checked);
+		else if (e->KeyCode == Keys::Right) cont->MoveSlctd("right", checkBoxBorders->Checked);
+		else if (e->KeyCode == Keys::Left) cont->MoveSlctd("left", checkBoxBorders->Checked);
 	}
 	private: System::Void MyForm_KeyUp(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e) {
 		if (e->KeyCode == Keys::ControlKey && cBoxCtrl->Checked) {
@@ -167,19 +196,23 @@ namespace LR6 {
 private: System::Void pBox_MouseClick(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e) {
 	int x = e->X;
 	int y = e->Y;
-	cont->addOrSelect(x, y, cBoxMulty->Checked, fCtrl);
+	cont->addOrSelect(x, y, cBoxMulty->Checked, fCtrl, type);
 }
 private: System::Void cBoxCtrl_CheckedChanged(System::Object^ sender, System::EventArgs^ e) {
 	if (!(cBoxCtrl->Checked)) fCtrl = 0;
 }
 private: System::Void btnColor_Click(System::Object^ sender, System::EventArgs^ e) {
-	clrDialog->ShowDialog();
 	if (clrDialog->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
 		cont->setSlctdColor(clrDialog->Color);
 	}
 }
 private: System::Void MyForm_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e) {
-
+	cont->DrawAll(g);
+}
+private: System::Void cBoxShapes_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e) {
+	if (cBoxShapes->Text == "Circle") type = "Circle";
+	else if (cBoxShapes->Text == "Square") type = "Square";
+	else if (cBoxShapes->Text == "Triangle") type = "Triangle";
 }
 };
 }

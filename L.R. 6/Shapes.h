@@ -1,48 +1,81 @@
 #pragma once
-ref class Point {
-private: int a, b;
-public:
-	Point(int _a, int _b) : a(_a), b(_b) {}
-};
+
+
+
 ref class Shape {
 protected:
-	int x, y;
+	int x, y, pX, pY;
 	System::Drawing::Brush^ ColorSlctd;
+	System::Drawing::Brush^ ColorUnSlctd = gcnew System::Drawing::SolidBrush(System::Drawing::Color::Gray);
 	bool isSelected;
 	virtual void DrawSlctd(System::Drawing::Graphics^ g) = 0;
 	virtual void DrawUnSlctd(System::Drawing::Graphics^ g) = 0;
 public:
-	virtual void Draw(System::Drawing::Graphics^ g) = 0;
 	virtual bool isPointInObj(int x1, int y1) = 0;
 	bool getIsSlctd() {
 		return isSelected;
 	}
-	void Move(System::String^ side) {
-		if (side == "right") x++;
-		else if (side == "left") x--;
-		else if (side == "up") y++;
-		else if (side == "down") y--;
+	virtual void sizeChange(System::String^ operation) = 0;
+	virtual void setXY() {
+		x = pX;
+		y = pY;
 	}
+
+	virtual void sizeChange(System::String^ operation, System::Drawing::Size Borders, System::Drawing::Point Location) {
+		sizeChange(operation);
+		BordersChecker(Borders, Location);
+	}
+
+	void Draw(System::Drawing::Graphics^ g) {
+		if (this->isSelected) DrawSlctd(g);
+		else DrawUnSlctd(g);
+	}
+	virtual void BordersChecker(System::Drawing::Size Borders, System::Drawing::Point Location) {
+		for (int i = 0; i < Borders.Width; i++) {
+			if (isPointInObj(i, Borders.Height) || isPointInObj(i, Location.Y)) {
+				x = pX;
+				y = pY;
+				return;
+			}
+		}
+		for (int i = 0; i < Borders.Height; i++) {
+			if (isPointInObj(Borders.Width, i) || isPointInObj(Location.X, i)) {
+				x = pX;
+				y = pY;
+				return;
+			}
+		}
+	};
+	virtual void Move(System::String^ side) {
+		pX  = x, pY = y;
+		if (side == "right") x+=5;
+		else if (side == "left") x-=5;
+		else if (side == "up") y-=5;
+		else if (side == "down") y+=5;
+	}
+	virtual void Move(System::String^ side, System::Drawing::Size Borders, System::Drawing::Point Location) {
+		Move(side);
+		BordersChecker(Borders, Location);
+	}
+	
 	void setColorSlctd(System::Drawing::Brush^ color) { ColorSlctd = color; }
 	void setIsSlctd(bool slctd) {
 		isSelected = slctd;
 	}
-	virtual bool isA(System::String^ name) = 0;
 };
 
 ref class CCircle :public Shape {
 protected:
-	int r;
+	int r, pR;
 	void DrawUnSlctd(System::Drawing::Graphics^ g) override {
-		System::Drawing::SolidBrush^ brush = gcnew System::Drawing::SolidBrush(System::Drawing::Color::Gray);
-		g->FillEllipse(brush, x, y, r * 2, r * 2);
+		g->FillEllipse(ColorUnSlctd, x, y, r * 2, r * 2);
 	}
 	void DrawSlctd(System::Drawing::Graphics^ g) override {
 		g->FillEllipse(ColorSlctd, x, y, r * 2, r * 2);
 	}
 public:
 	CCircle(int _x, int _y) {
-		r = 20;
+		pR = r = 20;
 		x = _x - r;
 		y = _y - r;
 		isSelected = true;
@@ -54,54 +87,132 @@ public:
 		int distanceSquared = (x1 - (x + r)) * (x1 - (x + r)) + (y1 - (y + r)) * (y1 - (y + r));
 		return distanceSquared <= r * r;
 	}
-	void Draw(System::Drawing::Graphics^ g) override {
-		if (this->isSelected) DrawSlctd(g);
-		else DrawUnSlctd(g);
+	void sizeChange(System::String^ operation) override {
+		pR = r;
+		if (operation == "+") r += 2;
+		else if (operation == "-") if(r!= 0) r -= 2;
 	}
-	bool isA(System::String^ name) override {
-		return (name == "Circle"); 
+	void setR() {
+		r = pR;
+	}
+	void BordersChecker(System::Drawing::Size Borders, System::Drawing::Point Location) override {
+		for (int i = 0; i < Borders.Width; i++) {
+			if (isPointInObj(i, Borders.Height) || isPointInObj(i, Location.Y)) {
+				x = pX;
+				y = pY;
+				r = pR;
+				return;
+			}
+		}
+		for (int i = 0; i < Borders.Height; i++) {
+			if (isPointInObj(Borders.Width, i) || isPointInObj(Location.X, i)) {
+				x = pX;
+				y = pY;
+				r = pR;
+				return;
+			}
+		}
 	}
 };
 
 ref class Square : public Shape {
 protected:
-	int a;
+	int a, pA;
 	void DrawUnSlctd(System::Drawing::Graphics^ g) override {
-		System::Drawing::SolidBrush^ brush = gcnew System::Drawing::SolidBrush(System::Drawing::Color::Gray);
-		g->FillRectangle(brush, x, y, a, a);
+		g->FillRectangle(ColorUnSlctd, x, y, a, a);
 	}
-	void DrawSelected(System::Drawing::Graphics^ g) override {
-		System::Drawing::SolidBrush^ brush = gcnew System::Drawing::SolidBrush(System::Drawing::Color::BlueViolet);
-		g->FillRectangle(brush, x, y, a, a);
+	void DrawSlctd(System::Drawing::Graphics^ g) override {
+		g->FillRectangle(ColorSlctd, x, y, a, a);
 	}
 public:
 	Square(int _x,int _y){
-		a = 10;
+		pA = a = 30;
 		x = _x - a / 2;
 		y = _y - a / 2;
 		isSelected = true;
 	}
+	void setA() {
+		a = pA;
+	}
 	bool isPointInObj(int x1, int y1) override {
-		return (x1 - (x + a/2))* (x1 - (x+a/2)) + (y1 - (y+a/2)) * (y1 - (y+a/2)) <= a / 2;
+		return (x1 - (x + a/2))* (x1 - (x+a/2)) + (y1 - (y+a/2)) * (y1 - (y+a/2)) <= (a / 2) * (a/2);
 	}
-	void Draw(System::Drawing::Graphics^ g) override {
-		if (this->isSelected) DrawSelected(g);
-		else DrawUnSlctd(g);
+	void sizeChange(System::String^ operation) override {
+		pA = a;
+		if (operation == "+") a += 3;
+		else if (operation == "-") if (a!= 0) a -= 3;
 	}
-	bool isA(System::String^ name) override {
-		return (name == "Square");
+	void BordersChecker(System::Drawing::Size Borders, System::Drawing::Point Location) override {
+		for (int i = 0; i < Borders.Width; i++) {
+			if (isPointInObj(i, Borders.Height) || isPointInObj(i, Location.Y)) {
+				x = pX;
+				y = pY;
+				a = pA;
+				return;
+			}
+		}
+		for (int i = 0; i < Borders.Height; i++) {
+			if (isPointInObj(Borders.Width, i) || isPointInObj(Location.X, i)) {
+				x = pX;
+				y = pY;
+				a = pA;
+				return;
+			}
+		}
 	}
-
 };
 ref class Triangle : public Shape {
 protected:
-	int size = 10;
-	Point^ A = gcnew Point(-1, 0);
-	Point^ B = gcnew Point(3, 0);
-	Point^ C = gcnew Point(1, 4);
-
-	//array <Point^>^ points = {};
+	int size = 30;
+	double height = (System::Math::Sqrt(3) / 2) * size;
+	System::Drawing::PointF A, B, C, pA, pB, pC;
+	array<System::Drawing::PointF>^ points = gcnew array<System::Drawing::PointF>(3);
+	void DrawSlctd(System::Drawing::Graphics^ g) override {
+		g->FillPolygon(ColorSlctd, points);
+	}
 	void DrawUnSlctd(System::Drawing::Graphics^ g) override {
-		System::Drawing::SolidBrush^ brush = gcnew System::Drawing::SolidBrush(System::Drawing::Color::Gray);
+		g->FillPolygon(ColorUnSlctd,points);
+	}
+	void Initialize() {
+		System::Drawing::PointF _A(x , y - height / 3);
+		System::Drawing::PointF _B(x - size / 2 , y + height * 3 / 2);
+		System::Drawing::PointF _C(x + size / 2, y + height * 3 / 2);
+		pA = A = _A;
+		pB = B = _B;
+		pC = C = _C;
+		points[0] = A;
+		points[1] = B;
+		points[2] = C;
+	}
+public:
+	void setCoords(){
+		A = pA;
+		B = pB;
+		C = pC;
+	}
+	Triangle(int _x, int _y) {
+		x = _x;
+		y = _y;
+		isSelected = true;
+		Initialize();
+	}
+	void Move(System::String^ side) override {
+		Shape::Move(side);
+		Initialize();
+	}
+	bool isPointInObj(int x1, int y1) override {
+		double triangleArea = System::Math::Abs((A.X * (B.Y - C.Y) + B.X * (C.Y - A.Y) + C.X * (A.Y - B.Y)) / 2);
+		double subTriangle1Area = System::Math::Abs((A.X * (B.Y - y1) + B.X * (y1 - A.Y) + x1 * (A.Y - B.Y)) / 2);
+		double subTriangle2Area = System::Math::Abs((A.X * (y1 - C.Y) + x1 * (C.Y - A.Y) + C.X * (A.Y - y1)) / 2);
+		double subTriangle3Area = System::Math::Abs((x1 * (B.Y - C.Y) + B.X * (C.Y - y1) + C.X * (y1 - B.Y)) / 2);
+		double area2 = subTriangle1Area + subTriangle2Area + subTriangle3Area;
+		return ((int)area2 == (int)triangleArea);
+	}
+
+	void sizeChange(System::String^ operation) override {
+		if (operation == "+") size += 3;
+		else if (operation == "-") if (size != 0) size -= 3;
+		Initialize();
 	}
 };
+
