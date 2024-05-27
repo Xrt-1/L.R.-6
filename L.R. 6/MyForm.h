@@ -272,6 +272,7 @@ namespace LR6 {
 			this->KeyPreview = true;
 			this->MinimumSize = System::Drawing::Size(698, 436);
 			this->Name = L"MyForm";
+			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"L.R. 6";
 			this->SizeChanged += gcnew System::EventHandler(this, &MyForm::MyForm_SizeChanged);
 			this->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MyForm::MyForm_Paint);
@@ -356,16 +357,34 @@ private: System::Void circleToolStripMenuItem_Click(System::Object^ sender, Syst
 private: System::Void tStripLbl_Borders_Click(System::Object^ sender, System::EventArgs^ e) {
 	if (Borders) {
 		Borders = false;
+		MessageBox::Show("Borders ---- OFF");
+		System::Media::SystemSounds::Beep->Play();
 	}
-	else Borders = true;
+	else {
+		Borders = true;
+		MessageBox::Show("Borders ---- ON");
+	}
 }
 private: System::Void tStripLbl_MultuSel_Click(System::Object^ sender, System::EventArgs^ e) {
-	if (MultySeletct) MultySeletct = false;
-	else MultySeletct = true;
+	if (MultySeletct) {
+		MultySeletct = false;
+		MessageBox::Show("Multy select ---- OFF");
+	}
+	else {
+		MultySeletct = true;
+		MessageBox::Show("Multy select ---- ON");
+	}
+
 }
 private: System::Void tStripLbl_CtrlFunctional_Click(System::Object^ sender, System::EventArgs^ e) {
-	if (CtrlFunctional) CtrlFunctional = false;
-	else CtrlFunctional = true;
+	if (CtrlFunctional) {
+		CtrlFunctional = false;
+		MessageBox::Show("Ctrl fuctional ---- OFF");
+	}
+	else {
+		CtrlFunctional = true;
+		MessageBox::Show("Ctrl fuctional ---- ON");
+	}
 }
 };
 }

@@ -149,11 +149,6 @@ protected:
 	void DrawUnSlctd(System::Drawing::Graphics^ g) override {
 		g->FillPolygon(ColorUnSlctd,points);
 	}
-	void InitializePoints() {
-		points[0] = A = System::Drawing::PointF(x, y - height / 3);
-		points[1] = B = System::Drawing::PointF(x - height / 2, y + height * 3 / 2);
-		points[2] = C = System::Drawing::PointF(x + height / 2, y + height * 3 / 2);
-	}
 	void set_pParams() override {
 		Shape::set_pCoords();
 		pA = A;
@@ -173,7 +168,9 @@ public:
 		x = _x;
 		y = _y;
 		set_pParams();
-		InitializePoints();
+		points[0] = A = System::Drawing::PointF(x, y - height / 3);
+		points[1] = B = System::Drawing::PointF(x - height / 2, y + height * 3 / 2);
+		points[2] = C = System::Drawing::PointF(x + height / 2, y + height * 3 / 2);
 		isSelected = true;
 	}
 	void Move(System::String^ side) override {//проблема именно в этом методе
@@ -215,9 +212,19 @@ public:
 
 	void sizeChange(System::String^ operation) override {
 		set_pParams();
-		if (operation == "+") height += dMove;
-		else if (operation == "-") if (height != 0) height -= dMove;
-		InitializePoints();
+		if (operation == "+") {
+			A.Y -= dMove;
+			B.X -= dMove;
+			C.X += dMove;
+		}
+		else if (operation == "-") {
+			A.Y -= dMove;
+			B.X -= dMove;
+			C.X += dMove;
+		}
+		points[0] = A;
+		points[1] = B;
+		points[2] = C;
 	}
 };
 
