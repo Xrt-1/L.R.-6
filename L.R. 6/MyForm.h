@@ -113,10 +113,11 @@ namespace LR6 {
 	protected:
 
 	private: Graphics^ g;
+	private: System::Media::SoundPlayer^ player = gcnew System::Media::SoundPlayer("C:\\Windows\\Media\\Windows Error.wav");
 
 	private: System::Windows::Forms::ColorDialog^ clrDialog;
 
-
+			
 
 
 
@@ -157,12 +158,12 @@ namespace LR6 {
 			this->pBox->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
 				| System::Windows::Forms::AnchorStyles::Left)
 				| System::Windows::Forms::AnchorStyles::Right));
-			this->pBox->BackColor = System::Drawing::SystemColors::ButtonHighlight;
+			this->pBox->BackColor = System::Drawing::SystemColors::ControlLightLight;
 			this->pBox->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
 			this->pBox->Cursor = System::Windows::Forms::Cursors::Hand;
 			this->pBox->Location = System::Drawing::Point(15, 23);
 			this->pBox->Name = L"pBox";
-			this->pBox->Size = System::Drawing::Size(644, 328);
+			this->pBox->Size = System::Drawing::Size(653, 328);
 			this->pBox->TabIndex = 0;
 			this->pBox->TabStop = false;
 			this->pBox->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &MyForm::pBox_MouseClick);
@@ -223,6 +224,7 @@ namespace LR6 {
 			});
 			this->statusStrip1->Location = System::Drawing::Point(0, 363);
 			this->statusStrip1->Name = L"statusStrip1";
+			this->statusStrip1->RenderMode = System::Windows::Forms::ToolStripRenderMode::Professional;
 			this->statusStrip1->Size = System::Drawing::Size(680, 26);
 			this->statusStrip1->TabIndex = 8;
 			this->statusStrip1->Text = L"statusStrip1";
@@ -253,6 +255,7 @@ namespace LR6 {
 			this->lblShape->AutoSize = true;
 			this->lblShape->Font = (gcnew System::Drawing::Font(L"Montserrat", 7.8F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
+			this->lblShape->ForeColor = System::Drawing::SystemColors::InfoText;
 			this->lblShape->Location = System::Drawing::Point(12, 2);
 			this->lblShape->Name = L"lblShape";
 			this->lblShape->Size = System::Drawing::Size(48, 18);
@@ -355,10 +358,10 @@ private: System::Void circleToolStripMenuItem_Click(System::Object^ sender, Syst
 }
 
 private: System::Void tStripLbl_Borders_Click(System::Object^ sender, System::EventArgs^ e) {
+	player->Play();
 	if (Borders) {
 		Borders = false;
 		MessageBox::Show("Borders ---- OFF");
-		System::Media::SystemSounds::Beep->Play();
 	}
 	else {
 		Borders = true;
@@ -366,6 +369,7 @@ private: System::Void tStripLbl_Borders_Click(System::Object^ sender, System::Ev
 	}
 }
 private: System::Void tStripLbl_MultuSel_Click(System::Object^ sender, System::EventArgs^ e) {
+	player->Play();
 	if (MultySeletct) {
 		MultySeletct = false;
 		MessageBox::Show("Multy select ---- OFF");
@@ -377,6 +381,7 @@ private: System::Void tStripLbl_MultuSel_Click(System::Object^ sender, System::E
 
 }
 private: System::Void tStripLbl_CtrlFunctional_Click(System::Object^ sender, System::EventArgs^ e) {
+	player->Play();
 	if (CtrlFunctional) {
 		CtrlFunctional = false;
 		MessageBox::Show("Ctrl fuctional ---- OFF");

@@ -14,7 +14,7 @@ public:
 		for (int i = 0; i < Borders.Width; i++) {
 			if (obj->isPointInObj(i, Borders.Height) || obj->isPointInObj(i, -1)) {
 				obj->returnBack();
-				obj->set_dMove(1);
+				obj->set_dMove(1);//для того, чтобы максимально близко подойти к границе
 				return true;
 			}
 		}

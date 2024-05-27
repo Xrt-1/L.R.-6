@@ -80,15 +80,16 @@ public:
 	}
 	void sizeChange(System::String^ operation) override {
 		set_pParams();
+		int delta = 2;
 		if (operation == "+") {
-			r += 2;
-			x += 1;
-			y += 1;
+			r += delta;
+			x -= delta;
+			y -= delta;
 		}
-		else if (operation == "-") if (r != 0) {
-			r -= 2;
-			x -= 1;
-			y -= 1;
+		else if (operation == "-") if (r >= 2) {
+			r -= delta;
+			x += delta;
+			y += delta;
 		}
 	}
 	void returnBack() override {
@@ -126,16 +127,17 @@ public:
 	}
 	void sizeChange(System::String^ operation) override {
 		set_pParams();
+		int delta = 2;
 		if (operation == "+") {
-			a += 2;
-			x += 1;
-			y += 1;
+			a += delta;
+			x -= delta / 2;
+			y -= delta / 2;
 		}
-		else if (operation == "-") if (a != 0) {
-			a -= 2;
-			x -= 1;
-			y -= 1;
-		};
+		else if (operation == "-") if (a >= 2) {
+			a -= delta;
+			x += delta / 2;
+			y += delta / 2;
+		}
 	}
 };
 ref class Triangle : public Shape {
@@ -218,9 +220,9 @@ public:
 			C.X += dMove;
 		}
 		else if (operation == "-") {
-			A.Y -= dMove;
-			B.X -= dMove;
-			C.X += dMove;
+			A.Y += dMove;
+			B.X += dMove;
+			C.X -= dMove;
 		}
 		points[0] = A;
 		points[1] = B;
