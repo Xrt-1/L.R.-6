@@ -223,6 +223,7 @@ public:
 			A.Y += dMove;
 			B.X += dMove;
 			C.X -= dMove;
+			if (B.X == C.X) returnBack();
 		}
 		points[0] = A;
 		points[1] = B;
