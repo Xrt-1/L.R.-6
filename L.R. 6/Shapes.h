@@ -60,6 +60,10 @@ protected:
 	void DrawSlctd(System::Drawing::Graphics^ g) override {
 		g->FillEllipse(ColorSlctd, x, y, r * 2, r * 2);
 	}
+	void set_pParams() override {
+		Shape::set_pCoords();
+		pR = r;
+	}
 public:
 	CCircle(int _x, int _y) {
 		pR = r = 20;
@@ -75,9 +79,7 @@ public:
 		return distanceSquared <= r * r;
 	}
 	void sizeChange(System::String^ operation) override {
-		pR = r;
-		pX = x;
-		pY = y;
+		set_pParams();
 		if (operation == "+") {
 			r += 2;
 			x += 1;
@@ -133,7 +135,6 @@ public:
 			a -= 2;
 			x -= 1;
 			y -= 1;
-		
 		};
 	}
 };
@@ -171,13 +172,13 @@ public:
 	Triangle(int _x, int _y) {
 		x = _x;
 		y = _y;
-		set_pCoords();
+		set_pParams();
 		InitializePoints();
 		isSelected = true;
 	}
 	void Move(System::String^ side) override {//проблема именно в этом методе
 		Shape::Move(side);
-		set_pCoords();
+		set_pParams();
 		if (side == "right") {
 			A.X += dMove;
 			B.X += dMove;
