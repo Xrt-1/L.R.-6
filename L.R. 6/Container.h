@@ -5,43 +5,27 @@
 ref class BordersChecker {
 private:
 	System::Drawing::Size Borders;
-	System::Drawing::Point Location;
 public:
-	BordersChecker(System::Drawing::Size Borders, System::Drawing::Point Location) {
-		setParams(Borders, Location);
-	}
-	void setParams(System::Drawing::Size Borders, System::Drawing::Point Location) {
+	BordersChecker() {}
+	void setBorders(System::Drawing::Size Borders) {
 		this->Borders = Borders;
-		this->Location = Location;
 	}
 	bool BordersCheck(Shape^ obj) {
-		Triangle^ t;
-		CCircle^ c;
-		Square^ s;
 		for (int i = 0; i < Borders.Width; i++) {
-			if (obj->isPointInObj(i, Borders.Height) || obj->isPointInObj(i, Location.Y)) {
-				obj->setXY();
-				t = dynamic_cast<Triangle^> (obj);
-				c = dynamic_cast<CCircle^> (obj);
-				s = dynamic_cast<Square^> (obj);
-				if (c != nullptr) c->setR();
-				else if (t != nullptr) t->setXY();
-				else if (s != nullptr) s->setA();
+			if (obj->isPointInObj(i, Borders.Height) || obj->isPointInObj(i, -1)) {
+				obj->returnBack();
+				obj->set_dMove(1);
 				return true;
 			}
 		}
 		for (int i = 0; i < Borders.Height; i++) {
-			if (obj->isPointInObj(Borders.Width, i) || obj->isPointInObj(Location.X, i)) {
-				obj->setXY();
-				t = dynamic_cast<Triangle^> (obj);
-				c = dynamic_cast<CCircle^> (obj);
-				s = dynamic_cast<Square^> (obj);
-				if (c != nullptr) c->setR();
-				else if (t != nullptr) t->setCoords();
-				else if (s != nullptr) s->setA();
+			if (obj->isPointInObj(Borders.Width, i) || obj->isPointInObj(-1, i)) {
+				obj->returnBack();
+				obj->set_dMove(1);
 				return true;
 			}
 		}
+		if (obj->get_dMove() == 1) obj->reset_dMove();
 		return false;
 	}
 };
@@ -65,13 +49,15 @@ private:
 	BordersChecker^ bChecker;
 	
 public:
-	void Initialize_BChecker(System::Drawing::Size size, System::Drawing::Point Location) {
-		bChecker = gcnew BordersChecker(size, Location);
-	}
 	System::EventHandler^ ContainerChanged;
+	void Initialize_BChecker(System::Drawing::Size size) {
+		bChecker->setBorders(size); 
+	}
+	
 	ShapeContainer() {
 		last = current = first = nullptr;
 		size = 0;
+		bChecker = gcnew BordersChecker();
 	}
 	
 	void push_back(Shape^ cr) {
@@ -197,6 +183,7 @@ public:
 			if (r->value->getIsSlctd()) {
 				r->value->Move(side);
 				if (Borders) (bChecker->BordersCheck(r->value));
+				else (r->value)->reset_dMove();
 			}
 			r = r->nextNode;
 		}

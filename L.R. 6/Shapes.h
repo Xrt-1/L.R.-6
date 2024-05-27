@@ -10,16 +10,26 @@ protected:
 	bool isSelected;
 	virtual void DrawSlctd(System::Drawing::Graphics^ g) = 0;
 	virtual void DrawUnSlctd(System::Drawing::Graphics^ g) = 0;
+	int dMove = 5;
+	virtual void set_pCoords() {
+		pX = x;
+		pY = y;
+	}
+	virtual void set_pParams() = 0;
 public:
+	void reset_dMove() { dMove = 5; }
+	void set_dMove(int dMove) { this->dMove = dMove; }
+	int get_dMove() { return dMove; }
+	virtual void returnBack() {
+		x = pX;
+		y = pY;
+	}
+
 	virtual bool isPointInObj(int x1, int y1) = 0;
 	bool getIsSlctd() {
 		return isSelected;
 	}
 	virtual void sizeChange(System::String^ operation) = 0;
-	virtual void setXY() {
-		x = pX;
-		y = pY;
-	}
 
 	void Draw(System::Drawing::Graphics^ g) {
 		if (this->isSelected) DrawSlctd(g);
@@ -28,10 +38,10 @@ public:
 
 	virtual void Move(System::String^ side) {
 		pX  = x, pY = y;
-		if (side == "right") x+=5;
-		else if (side == "left") x-=5;
-		else if (side == "up") y-=5;
-		else if (side == "down") y+=5;
+		if (side == "right") x+=dMove;
+		else if (side == "left") x-=dMove;
+		else if (side == "up") y-=dMove;
+		else if (side == "down") y+=dMove;
 	}
 
 	
@@ -66,10 +76,21 @@ public:
 	}
 	void sizeChange(System::String^ operation) override {
 		pR = r;
-		if (operation == "+") r += 2;
-		else if (operation == "-") if(r!= 0) r -= 2;
+		pX = x;
+		pY = y;
+		if (operation == "+") {
+			r += 2;
+			x += 1;
+			y += 1;
+		}
+		else if (operation == "-") if (r != 0) {
+			r -= 2;
+			x -= 1;
+			y -= 1;
+		}
 	}
-	void setR() {
+	void returnBack() override {
+		Shape::returnBack();
 		r = pR;
 	}
 };
@@ -83,6 +104,10 @@ protected:
 	void DrawSlctd(System::Drawing::Graphics^ g) override {
 		g->FillRectangle(ColorSlctd, x, y, a, a);
 	}
+	void set_pParams() override {
+		Shape::set_pCoords();
+		pA = a;
+	}
 public:
 	Square(int _x,int _y){
 		pA = a = 30;
@@ -90,22 +115,31 @@ public:
 		pY = y = _y - a / 2;
 		isSelected = true;
 	}
-	void setA() {
+	void returnBack() override{
+		Shape::returnBack();
 		a = pA;
 	}
 	bool isPointInObj(int x1, int y1) override {
 		return (x1 - (x + a/2))* (x1 - (x+a/2)) + (y1 - (y+a/2)) * (y1 - (y+a/2)) <= (a / 2) * (a/2);
 	}
 	void sizeChange(System::String^ operation) override {
-		pA = a;
-		if (operation == "+") a += 3;
-		else if (operation == "-") if (a!= 0) a -= 3;
+		set_pParams();
+		if (operation == "+") {
+			a += 2;
+			x += 1;
+			y += 1;
+		}
+		else if (operation == "-") if (a != 0) {
+			a -= 2;
+			x -= 1;
+			y -= 1;
+		
+		};
 	}
 };
 ref class Triangle : public Shape {
 protected:
-	int size = 30;
-	double height = (System::Math::Sqrt(3) / 2) * size;
+	double pHeight, height = 30;
 	System::Drawing::PointF A, B, C, pA, pB, pC;
 	array<System::Drawing::PointF>^ points = gcnew array<System::Drawing::PointF>(3);
 	void DrawSlctd(System::Drawing::Graphics^ g) override {
@@ -114,32 +148,59 @@ protected:
 	void DrawUnSlctd(System::Drawing::Graphics^ g) override {
 		g->FillPolygon(ColorUnSlctd,points);
 	}
-	void Initialize() {
-		System::Drawing::PointF _A(x , y - height / 3);
-		System::Drawing::PointF _B(x - size / 2 , y + height * 3 / 2);
-		System::Drawing::PointF _C(x + size / 2, y + height * 3 / 2);
-		pA = A = _A;
-		pB = B = _B;
-		pC = C = _C;
+	void InitializePoints() {
+		points[0] = A = System::Drawing::PointF(x, y - height / 3);
+		points[1] = B = System::Drawing::PointF(x - height / 2, y + height * 3 / 2);
+		points[2] = C = System::Drawing::PointF(x + height / 2, y + height * 3 / 2);
+	}
+	void set_pParams() override {
+		Shape::set_pCoords();
+		pA = A;
+		pB = B;
+		pC = C;
+		pHeight = height;
+	}
+public:
+	void returnBack() override{
+		Shape::returnBack();
+		points[0] = A = pA;
+		points[1] = B = pB;
+		points[2] = C = pC;
+		height = pHeight;
+	}
+	Triangle(int _x, int _y) {
+		x = _x;
+		y = _y;
+		set_pCoords();
+		InitializePoints();
+		isSelected = true;
+	}
+	void Move(System::String^ side) override {//проблема именно в этом методе
+		Shape::Move(side);
+		set_pCoords();
+		if (side == "right") {
+			A.X += dMove;
+			B.X += dMove;
+			C.X += dMove;
+		}
+		else if (side == "left") {
+			A.X -= dMove;
+			B.X -= dMove;
+			C.X -= dMove;
+		}
+		else if (side == "up") {
+			A.Y -= dMove;
+			B.Y -= dMove;
+			C.Y -= dMove;
+		}
+		else if (side == "down") {
+			A.Y += dMove;
+			B.Y += dMove;
+			C.Y += dMove;
+		}
 		points[0] = A;
 		points[1] = B;
 		points[2] = C;
-	}
-public:
-	void setCoords(){
-		A = pA;
-		B = pB;
-		C = pC;
-	}
-	Triangle(int _x, int _y) {
-		pX = x = _x;
-		pY = y = _y;
-		isSelected = true;
-		Initialize();
-	}
-	void Move(System::String^ side) override {
-		Shape::Move(side);
-		Initialize();
 	}
 	bool isPointInObj(int x1, int y1) override {
 		double triangleArea = System::Math::Abs((A.X * (B.Y - C.Y) + B.X * (C.Y - A.Y) + C.X * (A.Y - B.Y)) / 2);
@@ -147,13 +208,15 @@ public:
 		double subTriangle2Area = System::Math::Abs((A.X * (y1 - C.Y) + x1 * (C.Y - A.Y) + C.X * (A.Y - y1)) / 2);
 		double subTriangle3Area = System::Math::Abs((x1 * (B.Y - C.Y) + B.X * (C.Y - y1) + C.X * (y1 - B.Y)) / 2);
 		double area2 = subTriangle1Area + subTriangle2Area + subTriangle3Area;
-		return ((int)area2 == (int)triangleArea);
+		double delta = System::Math::Abs(triangleArea - area2);
+		return (delta < 0.00011 || delta < -0.00011);
 	}
 
 	void sizeChange(System::String^ operation) override {
-		if (operation == "+") size += 3;
-		else if (operation == "-") if (size != 0) size -= 3;
-		Initialize();
+		set_pParams();
+		if (operation == "+") height += dMove;
+		else if (operation == "-") if (height != 0) height -= dMove;
+		InitializePoints();
 	}
 };
 
